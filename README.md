@@ -27,7 +27,6 @@ Two different ways to build a "search my own documents" AI system, built hands-o
 - [Build 1 & 2 — Self-Hosted RAG (n8n + Supabase)](#-build-1--2--self-hosted-rag-n8n--supabase)
 - [Build 3 — Multi-Node HR Agent (Dify)](#-build-3--multi-node-hr-agent-dify)
 - [Prompt Design](#️-prompt-design)
-- [Demos](#-demos)
 - [What This Demonstrates](#-what-this-demonstrates)
 
 ---
@@ -77,6 +76,22 @@ flowchart LR
 
 A third pattern is documented but not demoed here: a **Pinecone Assistant relay** variant, where n8n's only job is passing chat messages to a hosted Pinecone Assistant that owns ingestion and retrieval entirely — the alternative end of the build-vs-buy spectrum, for teams that would rather not manage chunking and a vector database themselves.
 
+**Ingestion in action** — Google Drive → chunked → embedded → written into the Supabase `documents` table:
+
+<p align="center">
+<img src="assets/Rag_ingest.webp" width="700" alt="RAG ingestion workflow running in n8n, writing chunks into Supabase" />
+</p>
+
+<p align="center"><sub><a href="assets/Rag_ingest.mp4">▶️ Full-length version (Rag_ingest.mp4)</a></sub></p>
+
+**Retrieval agent in action** — a live grounded conversation over the ingested documents, including follow-up questions that rely on session memory:
+
+<p align="center">
+<img src="assets/Rag_retrive_.webp" width="700" alt="RAG retrieval chat agent answering grounded questions in n8n" />
+</p>
+
+<p align="center"><sub><a href="assets/Rag_retrive_.mp4">▶️ Full-length version (Rag_retrive_.mp4)</a></sub></p>
+
 ---
 
 ## 🤖 Build 3 — Multi-Node HR Agent (Dify)
@@ -103,6 +118,14 @@ flowchart LR
 | **Escalation Detector** | Quality-checks the generated answer; if it's vague or just says "contact HR," it discards that answer and drafts a ready-to-send escalation email instead |
 
 The "wow moment" this was built around: one employee question visibly passes through four distinct reasoning steps in a few seconds — the same triage a human HR generalist would do, just fast enough to feel instant.
+
+**Pipeline in action** — a question flowing through classification, retrieval, tone adaptation, and escalation-checking:
+
+<p align="center">
+<img src="assets/Defy_HR_Policy_agent.webp" width="700" alt="Dify HR policy agent — 4-node pipeline classifying, retrieving, adapting tone, and checking for escalation" />
+</p>
+
+<p align="center"><sub><a href="assets/Defy_HR_Policy_agent.mp4">▶️ Full-length version (Defy_HR_Policy_agent.mp4)</a></sub></p>
 
 ---
 
@@ -134,35 +157,6 @@ send to HR.
 ```
 
 This mirrors the same principle as the n8n retrieval agent's instruction to admit uncertainty: **a policy chatbot that confidently gives a bad answer is worse than one that hands the employee a ready-drafted email to a real person.** Building the failure path with the same care as the success path is the actual design decision here, not an edge case bolted on afterward.
-
----
-
-## 🎬 Demos
-
-Real recorded runs of all three workflows, not staged screenshots.
-
-<table>
-<tr>
-<td width="33%" align="center">
-<img src="assets/rag-ingest-thumb.png" width="100%" alt="RAG ingestion workflow" /><br/>
-<b>Ingestion</b><br/>
-Google Drive → chunked → embedded → written to Supabase<br/>
-<a href="assets/Rag_ingest.mp4">▶️ Watch</a>
-</td>
-<td width="33%" align="center">
-<img src="assets/rag-retrieve-thumb.png" width="100%" alt="RAG retrieval chat agent" /><br/>
-<b>Retrieval Chat Agent</b><br/>
-Live grounded Q&A over the ingested documents<br/>
-<a href="assets/Rag_retrive_.mp4">▶️ Watch</a>
-</td>
-<td width="33%" align="center">
-<img src="assets/dify-hr-agent-thumb.png" width="100%" alt="Dify HR policy agent" /><br/>
-<b>HR Policy Agent</b><br/>
-4-node classify → retrieve → tone-adapt → escalate pipeline<br/>
-<a href="assets/Defy_HR_Policy_agent.mp4">▶️ Watch</a>
-</td>
-</tr>
-</table>
 
 ---
 
