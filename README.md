@@ -9,7 +9,7 @@
 ![Pattern](https://img.shields.io/badge/Pattern-RAG%20%2F%20Agentic%20Workflow-00B894?style=flat-square)
 ![Backend](https://img.shields.io/badge/Vector%20Store-Supabase%20pgvector-E17055?style=flat-square)
 
-**[Ingestion Agent](assets/RAG%20Ingestion%20-Agent.json) · [Retrieval Agent](assets/RAG%20Chat%20-%20Supabase%20Retrieval%20Agent.json) · [Dify HR Agent](assets/HR%20Policy%20Assistant%20dify.yml)**
+![Original Workflow] **[Ingestion Agent](assets/RAG%20Ingestion%20-Agent.json) · [Retrieval Agent](assets/RAG%20Chat%20-%20Supabase%20Retrieval%20Agent.json) · [Dify HR Agent](assets/HR%20Policy%20Assistant%20dify.yml)**
 
 </div>
 
