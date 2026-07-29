@@ -8,7 +8,9 @@
 ![Tools](https://img.shields.io/badge/Tools-n8n%20%C2%B7%20Dify%20%C2%B7%20Gemini-0984E3?style=flat-square)
 ![Pattern](https://img.shields.io/badge/Pattern-RAG%20%2F%20Agentic%20Workflow-00B894?style=flat-square)
 ![Backend](https://img.shields.io/badge/Vector%20Store-Supabase%20pgvector-E17055?style=flat-square)
-
+[Ingestion Agent](assets/RAG Ingestion -Agent.json)
+[Retrieval Agent](assets/RAG Chat - Supabase Retrieval Agent.json)
+[Defy HR Agent](assets/HR Policy Assistant dify.yml)
 </div>
 
 ---
