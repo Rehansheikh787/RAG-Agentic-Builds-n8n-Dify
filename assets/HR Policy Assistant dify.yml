@@ -1,0 +1,459 @@
+app:
+  description: This is an HR policy assistant which auto-detects the user intent and
+    answers the questions from the Policy document
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  icon_type: emoji
+  mode: advanced-chat
+  name: HR Policy Assistant
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/gemini:0.9.3@f34e3e2c5f1dea8bae213af7c1aa553849366f78c65040d75bd5a1d20caeeba9
+    version: null
+kind: app
+version: 0.6.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - remote_url
+      - local_file
+      enabled: true
+      fileUploadConfig:
+        attachment_image_file_size_limit: 2
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        file_upload_limit: 50
+        image_file_batch_limit: 10
+        image_file_size_limit: 10
+        single_chunk_attachment_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        sourceType: start
+        targetType: llm
+      id: 1782491021788-llm
+      selected: false
+      source: '1782491021788'
+      sourceHandle: source
+      target: llm
+      targetHandle: target
+      type: custom
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: knowledge-retrieval
+      id: llm-source-1782491297112-target
+      selected: false
+      source: llm
+      sourceHandle: source
+      target: '1782491297112'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: llm
+      id: 1782491297112-source-1782491708856-target
+      selected: false
+      source: '1782491297112'
+      sourceHandle: source
+      target: '1782491708856'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: llm
+      id: 1782491708856-source-1782491978548-target
+      selected: false
+      source: '1782491708856'
+      sourceHandle: source
+      target: '1782491978548'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInLoop: false
+        sourceType: llm
+        targetType: answer
+      id: 1782491978548-source-answer-target
+      source: '1782491978548'
+      sourceHandle: source
+      target: answer
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        selected: false
+        title: User Input
+        type: start
+        variables: []
+      height: 72
+      id: '1782491021788'
+      position:
+        x: 0
+        y: 9.5
+      positionAbsolute:
+        x: 0
+        y: 9.5
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: HR Policy
+        memory:
+          query_prompt_template: '
+
+            Employee question: {{#sys.query#}}
+
+            Classify this question.
+
+            '
+          role_prefix:
+            assistant: ''
+            user: ''
+          window:
+            enabled: false
+            size: 10
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gemini-2.5-flash
+          provider: langgenius/gemini/google
+        prompt_template:
+        - id: 278a2971-9784-4546-bbd3-5de397f179a9
+          role: system
+          text: 'You are an HR query classifier. Your only job is to read an employee''s
+            question 
+
+            and assign it to exactly one category.
+
+
+            Categories:
+
+            - LEAVE POLICY — questions about casual leave, sick leave, maternity/paternity, 
+
+              carry forward, encashment
+
+            - COMPENSATION — questions about salary, bonuses, increments, payslips,
+            PF, gratuity
+
+            - CODE OF CONDUCT — questions about behaviour, dress code, workplace ethics, 
+
+              disciplinary action
+
+            - REIMBURSEMENT — questions about travel, food, medical, or expense claims
+
+            - ESCALATION — question is vague, sensitive, personal, or about a specific
+            dispute
+
+
+            Respond ONLY in this format, nothing else:
+
+            CATEGORY: [category name]
+
+            REASON: [one sentence explaining why]
+
+            '
+        selected: false
+        title: Query Classifier
+        type: llm
+        vision:
+          enabled: false
+      height: 115
+      id: llm
+      position:
+        x: 342
+        y: 0
+      positionAbsolute:
+        x: 342
+        y: 0
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: "\U0001F50D Query Classified As: \n{{#llm.text#}}\n\n\U0001F4CB Policy\
+          \ Answer:\n{{#1782491708856.text#}}\n\n✅ Final Response: \n{{#1782491978548.text#}}\n"
+        selected: false
+        title: Answer
+        type: answer
+        variables: []
+      height: 155
+      id: answer
+      position:
+        x: 1710
+        y: 52.3333333333333
+      positionAbsolute:
+        x: 1710
+        y: 52.3333333333333
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        dataset_ids:
+        - rpQuXA4yFbwVkOQRobsXK6Ye5cm2TWRUv8inf081o1b/t77nmOAjWRSXlatZvZum
+        multiple_retrieval_config:
+          reranking_enable: false
+          reranking_mode: weighted_score
+          score_threshold: 0.5
+          top_k: 3
+          weights:
+            keyword_setting:
+              keyword_weight: 0
+            vector_setting:
+              embedding_model_name: gemini-embedding-001
+              embedding_provider_name: langgenius/gemini/google
+              vector_weight: 1
+            weight_type: customized
+        query_attachment_selector: []
+        query_variable_selector:
+        - '1782491021788'
+        - sys.query
+        retrieval_mode: multiple
+        selected: false
+        title: Knowledge Retrieval
+        type: knowledge-retrieval
+      height: 89
+      id: '1782491297112'
+      position:
+        x: 684
+        y: 32.16666666666666
+      positionAbsolute:
+        x: 684
+        y: 32.16666666666666
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: Tone Adaptor
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gemini-2.5-flash
+          provider: langgenius/gemini/google
+        prompt_template:
+        - id: a8937c97-7904-4d62-89b8-7ee501d9d52b
+          role: system
+          text: 'You are an HR communication specialist. You receive:
+
+            1. An employee''s question
+
+            2. The policy category it was classified under
+
+            3. The relevant policy content retrieved from the company document
+
+
+            Your job is to:
+
+            FIRST — detect the appropriate tone based on the question''s intent:
+
+            - If the question is factual and routine (leave balance, claim process)
+            → use Simple Plain English: clear, direct, no jargon
+
+            - If the question involves a serious matter (disciplinary, termination,
+            legal) → use Official HR Language: formal, precise, reference policy sections
+
+            - If the question is casual or exploratory ("can I", "is it okay to")
+            → use Friendly Conversational: warm, helpful, easy to read
+
+
+            THEN — write the answer in that detected tone using only the policy content
+            provided.
+
+
+            Always end your response with:
+
+            📁 Policy Category: [category from classifier]
+
+            🗣 Tone Used: [tone name]
+
+            '
+        - id: 307b2d9a-145c-48c4-90e4-753448f15c19
+          role: user
+          text: 'Employee question: {{#sys.query#}}
+
+            Policy category identified: {{query_classifier.output}}
+
+            Relevant policy content:
+
+            {{knowledge_retrieval.output}}
+
+            Write the answer now.
+
+            '
+        selected: false
+        title: Tone Adaptor
+        type: llm
+        vision:
+          enabled: false
+      height: 115
+      id: '1782491708856'
+      position:
+        x: 1026
+        y: 33.999999999999986
+      positionAbsolute:
+        x: 1026
+        y: 33.999999999999986
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: Escalation Detector
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: gemini-2.5-flash
+          provider: langgenius/gemini/google
+        prompt_template:
+        - id: 20628c3d-8561-4430-b6e5-4c0eb7fca23e
+          role: system
+          text: 'You are a quality checker for an HR policy chatbot.
+
+
+            You will receive:
+
+            1. The employee''s original question
+
+            2. The answer the chatbot generated
+
+
+            Your job is to decide: is this answer clear, specific, and actually helpful?
+
+
+            If YES — output the answer exactly as received. Do not change anything. 
+
+            Start your response with: ✅ ANSWERED:
+
+
+            If NO (the answer is vague, says "not specified", "contact HR", or doesn''t 
+
+            directly address the question) — do not output the answer. 
+
+            Instead, draft a professional escalation email the employee can send to
+            HR.
+
+            Start your response with: 🔺 ESCALATION NEEDED:
+
+
+            Then write the email like this:
+
+
+            Subject: Policy Clarification Required — [topic of their question]
+
+
+            Dear HR Team,
+
+
+            I had a query regarding [restate the question clearly]. 
+
+            I was unable to find a clear answer in the available policy documentation.
+
+
+            Could you please clarify:
+
+            - [specific sub-question 1]
+
+            - [specific sub-question 2]
+
+
+            Looking forward to your guidance.
+
+
+            [Employee Name]
+
+            '
+        - id: 76f5dc4d-5e13-498b-83b5-fcbcfe2fe141
+          role: user
+          text: 'Original employee question: {{#sys.query#}}
+
+            Chatbot answer generated:
+
+            {{tone_adapter.output}}
+
+            Check the answer and respond accordingly.
+
+            '
+        selected: false
+        title: Escalation Detector
+        type: llm
+        vision:
+          enabled: false
+      height: 115
+      id: '1782491978548'
+      position:
+        x: 1368
+        y: 53.16666666666664
+      positionAbsolute:
+        x: 1368
+        y: 53.16666666666664
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    viewport:
+      x: 58.80381496627706
+      y: 143.20027611717197
+      zoom: 0.5760180015794915
+  rag_pipeline_variables: []

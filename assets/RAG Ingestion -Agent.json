@@ -1,0 +1,346 @@
+{
+  "name": "RAG Ingestion - Google Drive to Supabase (Gemini) - Part 1",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "3a7f69ee-bc6d-431c-a205-90e335417d22",
+      "name": "Manual Trigger - Run Ingestion",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1qvfFvyryEzrjxC_qH8ZHgPw-8SF0_pIw",
+            "mode": "list",
+            "cachedResultName": "AI folder ",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1qvfFvyryEzrjxC_qH8ZHgPw-8SF0_pIw"
+          }
+        },
+        "options": {}
+      },
+      "id": "af884417-3fc5-42f4-88c2-893f68bc9fc3",
+      "name": "List Files in Drive Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        224,
+        208
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "qrMXzNPCUHU9pQ8h",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "filter-folders-out",
+              "leftValue": "={{ $json.name }}",
+              "rightValue": "7_AI_Engineering_Skills_2026.pdf",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "6c41b189-4430-428c-997c-32291d88eb3f",
+      "name": "Filter Out Folders",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "404a2027-3748-484a-94a6-e8e9ad27d217",
+      "name": "Download File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        672,
+        208
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "qrMXzNPCUHU9pQ8h",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "id": "03593e35-b110-4c20-8f11-399cb2ec805c",
+      "name": "Extract from File",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        896,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Carry forward the extracted PDF text AND file metadata\nconst items = $input.all();\nreturn items.map(item => {\n  return {\n    json: {\n      text: item.json.text || '',  // <-- the actual extracted PDF content\n      file_name: $('Download File').first().json.name || 'unknown',\n      file_id: $('Download File').first().json.id || '',\n      mime_type: $('Download File').first().json.mimeType || '',\n      ingested_at: new Date().toISOString()\n    }\n  };\n});"
+      },
+      "id": "798dd497-fe45-4929-9308-714a5cff6511",
+      "name": "Attach File Metadata",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "id": "1d6f33f7-9948-4452-86b0-9857cae6528a",
+      "name": "Supabase Vector Store - Insert",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        1344,
+        208
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "RsAbFwlcTogQwQRo",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-2"
+      },
+      "id": "c788241f-4dde-4e53-b1f1-8bdb1bcb5abc",
+      "name": "Embeddings Google Gemini",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        432
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "9GD0CMDCDvzAP7Cd",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "6e3e65c3-8817-4dae-bf3f-5083843f87cf",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        1488,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "chunkSize": 800,
+        "chunkOverlap": 100,
+        "options": {}
+      },
+      "id": "cc7a7ba8-892d-47a2-8c33-218f84eb32ae",
+      "name": "Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        1488,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nreturn [{ json: { status: 'Ingestion complete', files_processed: items.length, completed_at: new Date().toISOString() } }];"
+      },
+      "id": "f0be99c5-9750-4fee-aed3-69d7d1188032",
+      "name": "Summarize Ingestion Run",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1696,
+        208
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger - Run Ingestion": {
+      "main": [
+        [
+          {
+            "node": "List Files in Drive Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Files in Drive Folder": {
+      "main": [
+        [
+          {
+            "node": "Filter Out Folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Out Folders": {
+      "main": [
+        [
+          {
+            "node": "Download File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download File": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Attach File Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attach File Metadata": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store - Insert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store - Insert": {
+      "main": [
+        [
+          {
+            "node": "Summarize Ingestion Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store - Insert",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store - Insert",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "84d4f51e-c80e-488f-bd56-adf4d424bd25",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c65965f031d4ba87319740b4780187cf5747de91d613b36f596ce26586a5e323"
+  },
+  "nodeGroups": [],
+  "id": "mXxgmnJrf6GOCX8p",
+  "tags": []
+}
